@@ -20,13 +20,28 @@ SUBTYPE = ['plain', 'html']
 
 
 def get_config(_filename='settings.ini'):
-    path = os.environ["EE_CONFIG"]
-    config_parser = configparser.ConfigParser()
-    _config_file = "{}/{}".format(path, _filename)
-    config_parser.read(_config_file)
-    logging.config.fileConfig(_config_file)
-    logger = logging.getLogger(__name__)
-    return config_parser, logger
+    try:
+        path = os.environ["EE_CONFIG"]
+        config_parser = configparser.ConfigParser()
+        _config_file = "{}/{}".format(path, _filename)
+        config_parser.read(_config_file)
+        logging.config.fileConfig(_config_file)
+        logger = logging.getLogger(__name__)
+        return config_parser, logger
+    except Exception as ex:
+        print("Exception get_config: {}".format(ex))
+
+
+def get_email_helper(_config, _logger):
+    try:
+        port = _config.get('email', 'port')
+        password = _config.get('email', 'password')
+        username = _config.get('email', 'username')
+        smtp_server = _config.get('email', 'smtp_server')
+        encryption_type = _config.get('email', 'encryption_type')
+        return EmailHelper(smtp_server, port, encryption_type, username, password, _logger)
+    except Exception as ex:
+        _logger.exception(ex)
 
 
 def get_email_by_path(_filename):
