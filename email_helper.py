@@ -51,6 +51,9 @@ class EmailHelper:
             _encryption_type
         ))
 
+    def get_extension(self, _str):
+        return _str.split('.')[-1]
+
     def get_config(self, _filename='settings.ini'):
         config_parser = configparser.ConfigParser()
         _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "config/{}".format(_filename)))
@@ -103,6 +106,8 @@ class EmailHelper:
             # Add header as key/value pair to attachment part
             if not _filename:
                 _filename = 'attachment'
+                _ext = self.get_extension(_file_path)
+                _filename = 'attachment.{}'.format(_ext)
             part.add_header(
                 "Content-Disposition",
                 f"attachment; filename= {_filename}",
@@ -133,7 +138,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 8:
         print(
-            "python email_helper [smtp_server] [port] [username] [password] [to] [encryption_type] [config_filename] [attachment_path]")
+            "python email_helper [smtp_server] [port] [username] [password] [to] [encryption_type] [config_filename] [attachment_path] [attachment_name]")
     else:
         port = sys.argv[2]
         password = sys.argv[4]
@@ -143,15 +148,12 @@ if __name__ == '__main__':
         encryption_type = sys.argv[6]
         config_file = sys.argv[7]
 
-        if len(sys.argv) == 9:
-            filename = sys.argv[8]  # './data/data.csv'
-
         email_helper = EmailHelper(smtp_server, port, encryption_type, username, password, config_file)
         _config, _logger = email_helper.get_config()
 
         if len(sys.argv) == 9:
             filename = sys.argv[8]  # './data/data.csv'
             email_helper.email(receiver_email, 'Testing Subject {} attachment'.format(encryption_type), 'Testing Body',
-                               _filename='attachment.ini', _file_path=filename)
+                               _file_path=filename)
         else:
             email_helper.email(receiver_email, 'Testing Subject {}'.format(encryption_type), 'Testing Body')
