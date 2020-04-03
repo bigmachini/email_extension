@@ -13,7 +13,7 @@ with open(os.path.join(HERE, "README.md")) as fid:
 # This call to setup() does all the work
 setup(
     name="email-extension",
-    version="1.5.0",
+    version="1.6.0",
     description="This is a package to make the sending of emails in python easy",
     long_description=README,
     long_description_content_type="text/markdown",
