@@ -12,6 +12,7 @@ import logging
 import os
 
 ENCRYPTION_TYPE = ['SSL', 'TLS']
+SUBTYPE = ['plain', 'html']
 
 
 class EmailHelper:
@@ -52,7 +53,7 @@ class EmailHelper:
 
     def get_config(self, _filename='settings.ini'):
         config_parser = configparser.ConfigParser()
-        _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", _filename))
+        _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "config/{}".format(_filename)))
 
         # self.d = config_parser.read(_config_file)
         logging.config.fileConfig(_config_file)

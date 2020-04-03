@@ -131,3 +131,4 @@ dmypy.json
 settings.ini
 .idea
 /.idea
+sample_data.csv
