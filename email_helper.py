@@ -127,14 +127,13 @@ class EmailHelper:
                     server.starttls(context=context)
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
-                    self.logger.info("response-{}: {}".format( self.encryption_type,res))
+                    self.logger.info("response-{}: {}".format(self.encryption_type, res))
             if self.encryption_type == ENCRYPTION_TYPE[1]:
                 with smtplib.SMTP_SSL(self.smtp_server, self.port, context=context) as server:
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
                     self.logger.info("response-{}: {}".format(self.encryption_type, res))
         except Exception as ex:
-            print("Ex: {}".format(ex))
             self.logger.exception(ex)
 
 
