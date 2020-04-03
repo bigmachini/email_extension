@@ -1,13 +1,13 @@
 """Read the latest Real Python tutorials
 Usage:
 ------
-    $ emailext [to] [config_filename] [email_path] [email_type] [attachment_path] [attachment_name]
+    $ emailext [to] [email_path] [email_type] [attachment_path] [attachment_name]
 
 Send Email Without attachement:
-    $ emailext <receiver_email> <config_filename> <email_path> <email_type>
+    $ emailext <receiver_email> <email_path> <email_type>
 
-Send Email Without attachement:
-    $ emailext <receiver_email> <config_filename> <email_path> <email_type>  <attachment_path> <attachment_name>
+Send Email With attachement:
+    $ emailext <receiver_email> <email_path> <email_type> <attachment_path> <attachment_name>
 
 Available options are:
     -h, --help         Show this help
@@ -24,20 +24,18 @@ Version:
 """
 
 import sys
-from email_extension.email_helper import EmailHelper, ENCRYPTION_TYPE, SUBTYPE, get_config
+from email_extension.email_helper import EmailHelper, ENCRYPTION_TYPE, SUBTYPE, get_config,get_email_by_path
 
 
 def main():
     if len(sys.argv) > 1:
-        if len(sys.argv) < 3:
+        if len(sys.argv) < 2:
             raise Exception(
-                'wrong format: use python __main__.py [to] [config_filename] '
-                '[email_path] [email_type]  [attachment_path] [attachment_name]')
+                'wrong format: use python __main__.py [to] [email_path] [email_type]  [attachment_path] [attachment_name]')
         else:
             receiver_email = sys.argv[1]
-            config_file = sys.argv[2]
 
-            config_parser, logger = get_config(config_file)
+            config_parser, logger = get_config()
             port = config_parser.get('email', 'port')
             password = config_parser.get('email', 'password')
             username = config_parser.get('email', 'username')
@@ -55,22 +53,23 @@ def main():
             _file_path = None
 
             # check if users has entered email path and subtype
-            if len(sys.argv) > 3:
-                _msg_path = _file_path = sys.argv[3]
-                subtype = _file_path = sys.argv[4]
+            subject = 'Testing Subject {} no attachment'.format(encryption_type)
+            if len(sys.argv) > 2:
+                _msg_path = sys.argv[2]
+                subtype = sys.argv[3]
 
                 if subtype not in SUBTYPE:
                     raise Exception(
                         'invalid subtype. [plain/html]')
 
-                if len(sys.argv) > 6:
-                    _file_path = sys.argv[5]  # './data/data.csv'
+                message = get_email_by_path(_msg_path)
 
-                    if len(sys.argv) == 7:
-                        _filename = sys.argv[6]
+                if len(sys.argv) > 5:
+                    _file_path = sys.argv[4]  # './data/data.csv'
+
+                    if len(sys.argv) == 6:
+                        _filename = sys.argv[5]
                     subject = 'Testing Subject {} attachment'.format(encryption_type)
-            else:
-                subject = 'Testing Subject {} no attachment'.format(encryption_type)
 
             email_helper.email(receiver_email, subject, message,
                                _file_path=_file_path,

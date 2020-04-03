@@ -1,0 +1,5 @@
+Greetings,
+
+This is a test email with plain text
+
+Regards

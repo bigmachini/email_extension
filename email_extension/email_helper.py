@@ -1,6 +1,4 @@
 import smtplib, ssl
-import sys
-
 import configparser
 import logging.config
 
@@ -32,8 +30,11 @@ def get_config(_filename='settings.ini'):
 
 
 def get_email_by_path(_filename):
-    with open(_filename) as f:
-        return f.readlines()
+    with open(_filename, 'r') as f:
+        res = ''
+        for line in f.readlines():
+            res = "{}{}".format(res, line)
+        return res
 
 
 class EmailHelper:
@@ -65,13 +66,6 @@ class EmailHelper:
         self.password = _password
         self.encryption_type = _encryption_type
         self.logger = _logger
-
-        self.logger.info('smtp_server: {} port: {} username: {}  encryption_type: {}'.format(
-            _smtp_server,
-            _port,
-            _username,
-            _encryption_type
-        ))
 
     def email(self, _to, _subject, _body, _subtype='plain', _from=None, _cc=None, _bcc=None, _file_path=None,
               _filename=None):
@@ -136,11 +130,12 @@ class EmailHelper:
                     server.starttls(context=context)
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
-                    self.logger.info("response-{}: {}".format(self.encryption_type, res))
+                    return res
             if self.encryption_type == 'TLS':
                 with smtplib.SMTP_SSL(self.smtp_server, self.port, context=context) as server:
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
-                    self.logger.info("response-{}: {}".format(self.encryption_type, res))
+                    return res
         except Exception as ex:
             self.logger.exception(ex)
+            return ex
