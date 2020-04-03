@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 settings.ini
-.idea
-/.idea
+.idea/
 sample_data.csv
