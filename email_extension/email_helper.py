@@ -1,24 +1,44 @@
 import smtplib, ssl
 import sys
 
+import configparser
+import logging.config
+
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import configparser
-import logging.config
 import logging
 import os
+
+
+def get_extension(_path):
+    return _path.split('.')[-1]
+
 
 ENCRYPTION_TYPE = ['SSL', 'TLS']
 SUBTYPE = ['plain', 'html']
 
 
+def get_config(_filename='settings.ini'):
+    config_parser = configparser.ConfigParser()
+    _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "config/{}".format(_filename)))
+    config_parser.read(_config_file)
+    logging.config.fileConfig(_config_file)
+    logger = logging.getLogger(__name__)
+    return config_parser, logger
+
+
+def get_email_by_path(_filename):
+    with open(_filename) as f:
+        return f.readlines()
+
+
 class EmailHelper:
 
     def __init__(self, _smtp_server=None, _port=None, _encryption_type=None, _username=None, _password=None,
-                 _config_filename=None):
+                 _logger=None):
         msg = []
         if not _smtp_server:
             msg.append('SMTP_SERVER_REQUIRED')
@@ -28,8 +48,8 @@ class EmailHelper:
             msg.append('USERNAME_REQUIRED')
         if not _password:
             msg.append('PASSWORD_REQUIRED')
-        if not _config_filename:
-            msg.append('CONFIGURATION_FILE_REQUIRED')
+        if not _logger:
+            msg.append('LOGGER_REQUIRED')
         if not _encryption_type:
             msg.append('ENCRYPTION_TYPE_REQUIRED')
             if _encryption_type not in ENCRYPTION_TYPE:
@@ -43,26 +63,14 @@ class EmailHelper:
         self.username = _username
         self.password = _password
         self.encryption_type = _encryption_type
-        self.config, self.logger = self.get_config(_config_filename)
+        self.logger = _logger
+
         self.logger.info('smtp_server: {} port: {} username: {}  encryption_type: {}'.format(
             _smtp_server,
             _port,
             _username,
             _encryption_type
         ))
-
-    def get_extension(self, _str):
-        return _str.split('.')[-1]
-
-    def get_config(self, _filename='settings.ini'):
-        config_parser = configparser.ConfigParser()
-        _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "config/{}".format(_filename)))
-
-        # self.d = config_parser.read(_config_file)
-        logging.config.fileConfig(_config_file)
-
-        logger = logging.getLogger(__name__)
-        return config_parser, logger
 
     def email(self, _to, _subject, _body, _subtype='plain', _from=None, _cc=None, _bcc=None, _file_path=None,
               _filename=None):
@@ -104,7 +112,7 @@ class EmailHelper:
             encoders.encode_base64(part)
 
             # Add header as key/value pair to attachment part
-            _ext = self.get_extension(_file_path)
+            _ext = get_extension(_file_path)
             if not _filename:
                 _filename = 'attachment.{}'.format(_ext)
             else:
@@ -122,46 +130,16 @@ class EmailHelper:
         # Log in to server using secure context and send email
         try:
             context = ssl.create_default_context()
-            if self.encryption_type == ENCRYPTION_TYPE[0]:
-                with smtplib.SMTP(smtp_server, port) as server:
+            if self.encryption_type == 'SSL':
+                with smtplib.SMTP(self.smtp_server, self.port) as server:
                     server.starttls(context=context)
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
                     self.logger.info("response-{}: {}".format(self.encryption_type, res))
-            if self.encryption_type == ENCRYPTION_TYPE[1]:
+            if self.encryption_type == 'TLS':
                 with smtplib.SMTP_SSL(self.smtp_server, self.port, context=context) as server:
                     server.login(self.username, self.password)
                     res = server.sendmail(_from, _to, text)
                     self.logger.info("response-{}: {}".format(self.encryption_type, res))
         except Exception as ex:
             self.logger.exception(ex)
-
-
-if __name__ == '__main__':
-
-    if len(sys.argv) < 8:
-        print(
-            "python email_helper [smtp_server] [port] [username] [password] [to] [encryption_type] [config_filename] [attachment_path] [attachment_name]")
-    else:
-        port = sys.argv[2]
-        password = sys.argv[4]
-        username = sys.argv[3]
-        smtp_server = sys.argv[1]
-        receiver_email = sys.argv[5]
-        encryption_type = sys.argv[6]
-        config_file = sys.argv[7]
-
-        email_helper = EmailHelper(smtp_server, port, encryption_type, username, password, config_file)
-        # _config, _logger = email_helper.get_config()?
-
-        if len(sys.argv) > 9:
-            _file_path = sys.argv[8]  # './data/data.csv'
-
-            if len(sys.argv) == 10:
-                _filename = sys.argv[9]
-            else:
-                _filename = None
-            email_helper.email(receiver_email, 'Testing Subject {} attachment'.format(encryption_type), 'Testing Body',
-                               _file_path=_file_path, _filename=_filename)
-        else:
-            email_helper.email(receiver_email, 'Testing Subject {}'.format(encryption_type), 'Testing Body')

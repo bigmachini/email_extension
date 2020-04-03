@@ -1,3 +1,0 @@
-setuptools
-feedparser
-html2text
