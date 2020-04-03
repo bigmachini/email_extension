@@ -104,10 +104,12 @@ class EmailHelper:
             encoders.encode_base64(part)
 
             # Add header as key/value pair to attachment part
+            _ext = self.get_extension(_file_path)
             if not _filename:
-                _filename = 'attachment'
-                _ext = self.get_extension(_file_path)
                 _filename = 'attachment.{}'.format(_ext)
+            else:
+                _filename = '{}.{}'.format(_filename.split('.')[0], _ext)
+
             part.add_header(
                 "Content-Disposition",
                 f"attachment; filename= {_filename}",
@@ -151,9 +153,14 @@ if __name__ == '__main__':
         email_helper = EmailHelper(smtp_server, port, encryption_type, username, password, config_file)
         _config, _logger = email_helper.get_config()
 
-        if len(sys.argv) == 9:
-            filename = sys.argv[8]  # './data/data.csv'
+        if len(sys.argv) > 9:
+            _file_path = sys.argv[8]  # './data/data.csv'
+
+            if len(sys.argv) == 10:
+                _filename = sys.argv[9]
+            else:
+                _filename = None
             email_helper.email(receiver_email, 'Testing Subject {} attachment'.format(encryption_type), 'Testing Body',
-                               _file_path=filename)
+                               _file_path=_file_path, _filename=_filename)
         else:
             email_helper.email(receiver_email, 'Testing Subject {}'.format(encryption_type), 'Testing Body')
