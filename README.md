@@ -1,6 +1,27 @@
 README.md
 =======================
+prerequisits:
 
+https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/#persistent-environment-variables
+
+
+create an enviroment variable with the name EE_CONFIG
+
+this can be done by:
+
+sudo nano  /etc/enviroment
+
+add the following line and save:
+
+export EE_CONFIG = 'PATH_TO_CONFIG_FOLDER'
+
+source /etc/enviroment
+
+cd PATH_TO_CONFIG_FOLDER
+
+copy the settings_sample.ini into settings.ini and filling in the appropriate smtp details
+nano settings.ini
+ 
 Installation
 
 

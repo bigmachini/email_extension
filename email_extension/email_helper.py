@@ -22,8 +22,9 @@ SUBTYPE = ['plain', 'html']
 
 
 def get_config(_filename='settings.ini'):
+    path = os.environ["EE_CONFIG"]
     config_parser = configparser.ConfigParser()
-    _config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "config/{}".format(_filename)))
+    _config_file = "{}/{}".format(path, _filename)
     config_parser.read(_config_file)
     logging.config.fileConfig(_config_file)
     logger = logging.getLogger(__name__)
