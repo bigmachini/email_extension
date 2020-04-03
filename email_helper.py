@@ -126,11 +126,13 @@ class EmailHelper:
                 with smtplib.SMTP(smtp_server, port) as server:
                     server.starttls(context=context)
                     server.login(self.username, self.password)
-                    server.sendmail(_from, _to, text)
+                    res = server.sendmail(_from, _to, text)
+                    self.logger.info("response-{}: {}".format( self.encryption_type,res))
             if self.encryption_type == ENCRYPTION_TYPE[1]:
                 with smtplib.SMTP_SSL(self.smtp_server, self.port, context=context) as server:
                     server.login(self.username, self.password)
-                    server.sendmail(_from, _to, text)
+                    res = server.sendmail(_from, _to, text)
+                    self.logger.info("response-{}: {}".format(self.encryption_type, res))
         except Exception as ex:
             print("Ex: {}".format(ex))
             self.logger.exception(ex)
@@ -151,7 +153,7 @@ if __name__ == '__main__':
         config_file = sys.argv[7]
 
         email_helper = EmailHelper(smtp_server, port, encryption_type, username, password, config_file)
-        _config, _logger = email_helper.get_config()
+        # _config, _logger = email_helper.get_config()?
 
         if len(sys.argv) > 9:
             _file_path = sys.argv[8]  # './data/data.csv'
