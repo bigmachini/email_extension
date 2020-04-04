@@ -19,7 +19,7 @@ source /etc/enviroment
 
 cd PATH_TO_CONFIG_FOLDER
 
-copy the settings_sample.ini into settings.ini and filling in the appropriate smtp details
+copy the settings_sample.ini into settings.ini and filling in the appropriate details
 nano settings.ini
  
 Installation
