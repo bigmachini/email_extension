@@ -39,7 +39,7 @@ copy SampleSettingsFile_ into settings.ini and update with appropriate smtp deta
 
 You can install the package with pip:
 
-    pip install email-extension
+    pip install -i https://test.pypi.org/simple/ email-extension
 
 
 USAGE
