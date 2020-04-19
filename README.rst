@@ -55,6 +55,12 @@ Get config and logger from settings.ini in the EE_CONFIG folder
 if you changed the config file name from settings.ini you will have to pass the name of the config file
     config,logger = email_helper.get_config(filename)
 
+Get the email helper object that will be used to send the email
+ eh = email_helper.get_email_helper(config, logger)
+
+call the send email command when sending and email _to,_subject,_body are mandatory other parameters are optional
+ eh.email(_to, _subject, _body)
+
 
 TODOs and BUGS
 ============================
